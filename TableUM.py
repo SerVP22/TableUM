@@ -27,7 +27,7 @@ def finish(app):
             col = "green"
         for i in list_labels:
             i.configure(bg=col)
-
+# ??????????????????????????????????????
     app.run = False
 
 
@@ -44,6 +44,7 @@ def update(app):
 
 def button_name(app):
 
+    app.stop_draw = False
     rand_but = random.randint(0, len(app.but_list)-1)  #  0..9
     des_val = app.list_of_num[app.index_task][0]*app.list_of_num[app.index_task][1]
     list_val = [des_val]
@@ -53,41 +54,61 @@ def button_name(app):
             val = random.randint(1, 10) * random.randint(1, 10)
             while val in list_val:
                 val = random.randint(1, 10) * random.randint(1, 10)
+            app.but_list[i].configure(text=val,
+                                      command=lambda right_btn_num=rand_but, er_btn=app.but_list[i]: next_with_error(app, right_btn_num, er_btn))
         else:
             val = des_val
-        app.but_list[i].configure(text=val, command=lambda v=val: check(v, app))
+            app.but_list[i].configure(text=val, command=lambda: next_ex(app))
         list_val.append(val)
 
 
-def check(val, app):
-    rez = app.list_of_num[app.index_task][0] * app.list_of_num[app.index_task][1]
-    # print("*", val, rez, val==rez)
+def next_with_error(app, right_btn_num, er_btn):
 
-    if len(app.list_counts) == 0 and app.run:
-        finish(app)
+    def come_back_colors():
+        right_btn.configure(bg=save)
+        er_btn.configure(bg=save)
 
-    if val==rez and app.run:
-        app.sec_count = app.max_time
-        app.time_label.configure(text=f"{app.sec_count} сек")
-        app.index_task = random.choice(app.list_counts)
-        try:
-            app.list_counts.remove(app.index_task)
-        except ValueError:
-            print(app.list_counts)
-            print(app.index_task)
-        # print(app.list_of_num[app.index_task])
-        try:
-            app.ex_label.configure(text = f"{app.list_of_num[app.index_task][0]} X {app.list_of_num[app.index_task][1]}")
-        except IndexError:
-            print(app.list_of_num)
-            print(app.index_task)
-        button_name(app)
-        app.count_task.set(app.count_task.get()+1)
+    if not app.stop_draw:
+        app.stop_draw = True
+        right_btn = app.but_list[right_btn_num]
+        save = right_btn["bg"]
+        right_btn.configure(bg="green")
+        er_btn.configure(bg="red")
+        # right_btn.after(1000, come_back_colors)
 
 
-    elif app.run:
-        app.error_count+=1
-        print("YOU WRONG!!! Error count =", app.error_count)
+def next_ex(app):
+    pass
+
+# def check(val, app):
+#     rez = app.list_of_num[app.index_task][0] * app.list_of_num[app.index_task][1]
+#     # print("*", val, rez, val==rez)
+#
+#     if len(app.list_counts) == 0 and app.run:
+#         finish(app)
+#
+#     if val==rez and app.run:
+#         app.sec_count = app.max_time
+#         app.time_label.configure(text=f"{app.sec_count} сек")
+#         app.index_task = random.choice(app.list_counts)
+#         try:
+#             app.list_counts.remove(app.index_task)
+#         except ValueError:
+#             print(app.list_counts)
+#             print(app.index_task)
+#         # print(app.list_of_num[app.index_task])
+#         try:
+#             app.ex_label.configure(text = f"{app.list_of_num[app.index_task][0]} X {app.list_of_num[app.index_task][1]}")
+#         except IndexError:
+#             print(app.list_of_num)
+#             print(app.index_task)
+#         button_name(app)
+#         app.count_task.set(app.count_task.get()+1)
+#
+#
+#     elif app.run:
+#         app.error_count+=1
+#         print("YOU WRONG!!! Error count =", app.error_count)
 
 
 
@@ -104,7 +125,7 @@ def init_APP(list_of_num, list_counts):
     app.count_task.set(1)
     app.list_of_num = list_of_num
     app.list_counts = list_counts
-    app.max_time = 3
+    app.max_time = 10
     app.sec_count = app.max_time
     app.error_count = 0
     app.run = True
